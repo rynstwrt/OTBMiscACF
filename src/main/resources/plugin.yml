@@ -1,0 +1,9 @@
+name: "OTBMisc"
+version: "$version"
+main: "art.ryanstew.otbmisc.OTBMisc"
+prefix: "OTBMisc"
+api-version: "1.17"
+authors: [ "RuntimeRyan" ]
+description: "Miscellaneous commands of the Off The Block server!"
+website: "https://www.offtheblock.us"
+depend: ["PlaceholderAPI", "Factions", "CMI", "Vault", "Autorank", "IridiumSkyblock", "LuckPerms", "Multiverse-Core"]

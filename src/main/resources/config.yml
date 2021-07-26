@@ -1,0 +1,45 @@
+prefix: '&aOTB &8»&r'
+hubWorld: hub
+commandOnJoin: "ctext joinmessage"
+worldsWithOwnSpawns:
+    factions: factions
+    factions_nether: factions
+    factions_the_end: factions
+ranks:
+    - Guest
+    - Player
+    - Initiate
+    - Apprentice
+    - Archmage
+    - Arcanist
+    - Evoker
+    - Oracle
+    - Demigod
+    - God
+    - Enchanted
+tntWhitelistedWorlds:
+    - factions
+    - factions_nether
+    - factions_the_end
+bannedPrefixes:
+    - admin
+    - owner
+    - staff
+baltopGameModes:
+    world: SURVIVAL
+    world_nether: SURVIVAL
+    world_the_end: SURVIVAL
+    skyblock: SKYBLOCK
+    skyblock_nether: SKYBLOCK
+    skyblock_the_end: SKYBLOCK
+    factions: FACTIONS
+    factions_nether: FACTIONS
+    factions_the_end: FACTIONS
+gay:
+    message: '&c&LY&6&lA&e&lS&a&lS&b&lS&d&l!'
+    messagePrideMonth: '&eHappy pride month!'
+    messageSound: ENTITY_EXPERIENCE_ORB_PICKUP
+doubleDoorPlayers: []
+keepInvPlayers: []
+noCreeperMessagePlayers: []
+noFactionsPrefixPlayers: []
