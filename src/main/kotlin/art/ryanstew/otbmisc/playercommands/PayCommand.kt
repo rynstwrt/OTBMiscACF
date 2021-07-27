@@ -82,8 +82,8 @@ class PayCommand(private val plugin: OTBMisc) : BaseCommand()
         }
 
         val displayFloat: Double = round(amount * 100) / 100
-        player.sendMessage("${plugin.prefix} &aSuccessfully paid ${targetPlayer.displayName}&a $$displayFloat&a.".toChatColor())
-        targetPlayer.sendMessage("${plugin.prefix} &aReceived $$displayFloat from ${player.displayName}&a.".toChatColor())
+        player.sendMessage("${plugin.prefix} &aSuccessfully paid ${targetPlayer.displayName()}&a $$displayFloat&a.".toChatColor())
+        targetPlayer.sendMessage("${plugin.prefix} &aReceived $$displayFloat from ${player.displayName()}&a.".toChatColor())
     }
 
     private fun canWorldsTrade(w1: String, w2: String): Boolean

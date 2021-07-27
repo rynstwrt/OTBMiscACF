@@ -33,7 +33,7 @@ class WhatWorldCommand(private val plugin: OTBMisc) : BaseCommand()
         var message = "${plugin.prefix} &cThat player was not found!"
 
         if (targetPlayer != null)
-            message = "${plugin.prefix} &6${targetPlayer.displayName}&a is in the world \"${targetPlayer.world.name}\""
+            message = "${plugin.prefix} &6${targetPlayer.displayName()}&a is in the world \"${targetPlayer.world.name}\""
 
         sender.sendMessage(message.toChatColor())
     }

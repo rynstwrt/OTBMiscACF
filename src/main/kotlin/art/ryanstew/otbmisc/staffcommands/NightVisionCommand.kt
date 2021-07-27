@@ -20,7 +20,7 @@ class NightVisionCommand(private val plugin: OTBMisc) : BaseCommand()
         player.addPotionEffect(PotionEffect(PotionEffectType.NIGHT_VISION, Int.MAX_VALUE, Int.MAX_VALUE, false, false, false))
 
         player.sendMessage("${plugin.prefix} &aToggled nightvision on.".toChatColor())
-        sender?.sendMessage("${plugin.prefix} &aToggled nightvision on for ${player.displayName}&a.".toChatColor())
+        sender?.sendMessage("${plugin.prefix} &aToggled nightvision on for ${player.displayName()}&a.".toChatColor())
     }
 
     private fun setOffForPlayer(player: Player, sender: CommandSender?)
@@ -28,7 +28,7 @@ class NightVisionCommand(private val plugin: OTBMisc) : BaseCommand()
         player.removePotionEffect(PotionEffectType.NIGHT_VISION)
 
         player.sendMessage("${plugin.prefix} &aToggled nightvision &coff&a.".toChatColor())
-        sender?.sendMessage("${plugin.prefix} &aToggled nightvision &coff&a for ${player.displayName}&a.".toChatColor())
+        sender?.sendMessage("${plugin.prefix} &aToggled nightvision &coff&a for ${player.displayName()}&a.".toChatColor())
     }
 
     private fun toggleForPlayer(player: Player, sender: CommandSender?)

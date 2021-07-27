@@ -14,7 +14,7 @@ class VoteCratePlaceListener : Listener
         if (e.block.type != Material.ENDER_CHEST
             || e.itemInHand.itemMeta == null
             || !e.itemInHand.itemMeta!!.hasDisplayName()
-            || !e.itemInHand.itemMeta!!.displayName.contains("crate", true)
+            || !e.itemInHand.itemMeta!!.displayName().toString().contains("crate", true)
             || !e.isCancelled) return
 
         e.itemInHand.amount -= 1

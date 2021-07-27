@@ -8,7 +8,7 @@ import art.ryanstew.otbmisc.util.ColorUtil.ColorUtil.rgbArrayToHex
 import art.ryanstew.otbmisc.util.MiscUtil.Util.toChatColor
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
-import org.bukkit.Bukkit
+import com.Zrips.CMI.CMI
 import org.bukkit.entity.Player
 
 @CommandAlias("gradientnickname|gradientnick|gnick")
@@ -16,6 +16,8 @@ import org.bukkit.entity.Player
 @Description("Set your nickname to gradient text!")
 class GradientNickCommand(private val plugin: OTBMisc) : BaseCommand()
 {
+    private val playerManager = CMI.getInstance().playerManager
+
     @Default
     fun onNoArguments(player: Player)
     {
@@ -70,6 +72,7 @@ class GradientNickCommand(private val plugin: OTBMisc) : BaseCommand()
             formattedNick += chars[i]
         }
 
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "nick $formattedNick ${player.name}")
+        playerManager.getUser(player).setNickName(formattedNick, true)
+        player.sendMessage("${plugin.prefix} &aSuccessfully set your nickname!".toChatColor())
     }
 }

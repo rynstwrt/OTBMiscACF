@@ -90,20 +90,6 @@ class OTBMisc : JavaPlugin()
         }, 0L, 20L * 60 * 5)
     }
 
-    /** Events **/
-
-    // register event listeners
-    private fun registerEvents()
-    {
-        server.pluginManager.registerEvents(TNTListener(this), this)
-        server.pluginManager.registerEvents(VoteCratePlaceListener(), this)
-        server.pluginManager.registerEvents(KeepInvListener(this), this)
-        server.pluginManager.registerEvents(DoubleDoorListener(this), this)
-        server.pluginManager.registerEvents(CreeperAwwManListener(this), this)
-        server.pluginManager.registerEvents(JoinCommandListener(this), this)
-        server.pluginManager.registerEvents(HubScoreboardListener(this), this)
-    }
-
 
     /** Commands **/
 
@@ -151,6 +137,20 @@ class OTBMisc : JavaPlugin()
         manager.registerCommand(WhatWorldCommand(this))
         manager.registerCommand(KeepInvCommand(this))
         manager.registerCommand(SmeltCommand(this))
+    }
+
+
+    /** Events **/
+
+    // register event listeners
+    private fun registerEvents()
+    {
+        server.pluginManager.registerEvents(TNTListener(this), this)
+        server.pluginManager.registerEvents(VoteCratePlaceListener(), this)
+        server.pluginManager.registerEvents(KeepInvListener(this), this)
+        server.pluginManager.registerEvents(DoubleDoorListener(this), this)
+        server.pluginManager.registerEvents(CreeperAwwManListener(this), this)
+        server.pluginManager.registerEvents(PlayerJoinListener(this), this)
     }
 
 

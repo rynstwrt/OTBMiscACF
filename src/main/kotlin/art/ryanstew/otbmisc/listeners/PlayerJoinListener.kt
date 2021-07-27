@@ -5,7 +5,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 
-class JoinCommandListener(private val plugin: OTBMisc) : Listener
+class PlayerJoinListener(private val plugin: OTBMisc) : Listener
 {
     @EventHandler
     fun onPlayerJoin(e: PlayerJoinEvent)

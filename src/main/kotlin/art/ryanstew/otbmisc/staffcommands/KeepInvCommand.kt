@@ -18,12 +18,12 @@ class KeepInvCommand(private val plugin: OTBMisc) : BaseCommand()
         if (plugin.getMainConfig().getStringList("keepInvPlayers").contains(player.uniqueId.toString()))
         {
             onKeepInvOffCommand(player)
-            sender?.sendMessage("${plugin.prefix} &aSuccessfully toggled keepinv &coff&a for ${player.displayName}&a!".toChatColor())
+            sender?.sendMessage("${plugin.prefix} &aSuccessfully toggled keepinv &coff&a for ${player.displayName()}&a!".toChatColor())
         }
         else
         {
             onKeepInvOnCommand(player)
-            sender?.sendMessage("${plugin.prefix} &aSuccessfully toggled keepinv on for ${player.displayName}&a!".toChatColor())
+            sender?.sendMessage("${plugin.prefix} &aSuccessfully toggled keepinv on for ${player.displayName()}&a!".toChatColor())
         }
     }
 
@@ -96,14 +96,14 @@ class KeepInvCommand(private val plugin: OTBMisc) : BaseCommand()
         if (value.equals("on", true))
         {
             onKeepInvOnCommand(targetPlayer)
-            sender.sendMessage("${plugin.prefix} &aSuccessfully toggled keepinv on for ${targetPlayer.displayName}&a!".toChatColor())
+            sender.sendMessage("${plugin.prefix} &aSuccessfully toggled keepinv on for ${targetPlayer.displayName()}&a!".toChatColor())
             return
         }
 
         if (value.equals("off", true))
         {
             onKeepInvOffCommand(targetPlayer)
-            sender.sendMessage("${plugin.prefix} &aSuccessfully toggled keepinv &coff&a for ${targetPlayer.displayName}&a!".toChatColor())
+            sender.sendMessage("${plugin.prefix} &aSuccessfully toggled keepinv &coff&a for ${targetPlayer.displayName()}&a!".toChatColor())
             return
         }
     }

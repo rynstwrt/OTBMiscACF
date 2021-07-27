@@ -9,6 +9,7 @@ import art.ryanstew.otbmisc.util.ColorUtil.ColorUtil.rgbArrayToHex
 import art.ryanstew.otbmisc.util.MiscUtil.Util.toChatColor
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
+import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.entity.Player
 
@@ -78,7 +79,7 @@ class GradientItemNameCommand(private val plugin: OTBMisc) : BaseCommand()
         }
 
         val meta = item.itemMeta
-        meta?.setDisplayName(formattedItemName.toChatColor())
+        meta?.displayName(Component.text(formattedItemName.toChatColor()))
 
         item.itemMeta = meta
         player.sendMessage("${plugin.prefix} &aSuccessfully set your held item's name!".toChatColor())
