@@ -4,9 +4,13 @@ import art.ryanstew.otbmisc.donorcommands.*
 import art.ryanstew.otbmisc.listeners.*
 import art.ryanstew.otbmisc.placeholders.FactionNamePlaceholder
 import art.ryanstew.otbmisc.playercommands.*
-import art.ryanstew.otbmisc.staffcommands.*
+import art.ryanstew.otbmisc.staffcommands.KeepInvCommand
+import art.ryanstew.otbmisc.staffcommands.NightVisionCommand
+import art.ryanstew.otbmisc.staffcommands.OTBMiscCommand
+import art.ryanstew.otbmisc.staffcommands.WhatWorldCommand
 import co.aikar.commands.PaperCommandManager
 import net.milkbowl.vault.economy.Economy
+import org.bukkit.Material
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.enchantments.Enchantment
@@ -19,7 +23,7 @@ import java.math.RoundingMode
 
 class OTBMisc : JavaPlugin()
 {
-    // config files, configs, and the plugin prefix
+    /** Class variables **/
     private var mainConfigFile: File? = null
     private var mainConfig: FileConfiguration? = null
     private var moneyConfigFile: File? = null
@@ -27,6 +31,7 @@ class OTBMisc : JavaPlugin()
     private var homeConfigFile: File? = null
     private var homeConfig: FileConfiguration? = null
     var prefix = ""
+    var hubCompassMap = mutableMapOf<Material, String>()
 
     override fun onEnable()
     {
@@ -35,7 +40,8 @@ class OTBMisc : JavaPlugin()
         if (!mainConfigFile!!.exists()) saveResource("config.yml", false)
         reloadMainConfig()
         saveMainConfig()
-        prefix = getMainConfig().get("prefix").toString()
+        loadHubCompassMap()
+        prefix = getMainConfig().getString("prefix") ?: ""
 
         // set up money.yml
         if (moneyConfigFile == null) moneyConfigFile = File(dataFolder, "money.yml")
@@ -92,7 +98,6 @@ class OTBMisc : JavaPlugin()
 
 
     /** Commands **/
-
     // register player commands
     private fun registerPlayerCommands(manager: PaperCommandManager)
     {
@@ -136,12 +141,10 @@ class OTBMisc : JavaPlugin()
         manager.registerCommand(NightVisionCommand(this))
         manager.registerCommand(WhatWorldCommand(this))
         manager.registerCommand(KeepInvCommand(this))
-        manager.registerCommand(SmeltCommand(this))
     }
 
 
     /** Events **/
-
     // register event listeners
     private fun registerEvents()
     {
@@ -151,11 +154,12 @@ class OTBMisc : JavaPlugin()
         server.pluginManager.registerEvents(DoubleDoorListener(this), this)
         server.pluginManager.registerEvents(CreeperAwwManListener(this), this)
         server.pluginManager.registerEvents(PlayerJoinListener(this), this)
+        server.pluginManager.registerEvents(CMIRandomTeleportListener(this), this)
+        server.pluginManager.registerEvents(HubCompassListener(this), this)
     }
 
 
     /** Configurations **/
-
     // add defaults from new config to old config
     private fun addDefaults(config: FileConfiguration?, resourceName: String)
     {
@@ -249,6 +253,7 @@ class OTBMisc : JavaPlugin()
 
         addDefaults(mainConfig, "config.yml")
         prefix = getMainConfig().get("prefix").toString()
+        loadHubCompassMap()
     }
 
     // reload the money config
@@ -265,5 +270,44 @@ class OTBMisc : JavaPlugin()
     {
         if (homeConfigFile == null) homeConfigFile = File(dataFolder, "homes.yml")
         homeConfig = YamlConfiguration.loadConfiguration(homeConfigFile!!)
+    }
+
+    // load contents of hubCompass into a map
+    private fun loadHubCompassMap()
+    {
+        hubCompassMap = mutableMapOf()
+
+        val contentSection = getMainConfig().getConfigurationSection("hubCompass.content")
+        if (contentSection == null)
+        {
+            logger.severe("hubCompass.content is non-existent! This feature won't work!")
+            return
+        }
+
+        val itemPaths = contentSection.getKeys(false)
+        for (itemPath in itemPaths)
+        {
+            val commandString = contentSection.getString("$itemPath.command")
+            val materialString = contentSection.getString("$itemPath.material")
+
+            if (commandString == null || materialString == null)
+            {
+                logger.severe("hubCompass.content.command or hubCompass.content.material is non-existent! This feature won't work!")
+                continue
+            }
+
+            var material: Material?
+            try
+            {
+                material = Material.valueOf(materialString)
+            }
+            catch (exc: IllegalArgumentException)
+            {
+                logger.severe("hubCompass.content.$itemPath.material is invalid! This feature won't work!")
+                continue
+            }
+
+            hubCompassMap[material] = commandString
+        }
     }
 }

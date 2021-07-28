@@ -1,6 +1,7 @@
 prefix: '&aOTB &8»&r'
 hubWorld: hub
 commandOnJoin: "ctext joinmessage"
+randomTeleportSound: ENTITY_EXPERIENCE_ORB_PICKUP
 worldsWithOwnSpawns:
     factions: factions
     factions_nether: factions
@@ -36,9 +37,38 @@ baltopGameModes:
     factions_nether: FACTIONS
     factions_the_end: FACTIONS
 gay:
-    message: '&c&LY&6&lA&e&lS&a&lS&b&lS&d&l!'
-    messagePrideMonth: '&eHappy pride month!'
+    message: "&c&LY&6&lA&e&lS&a&lS&b&lS&d&l!"
+    messagePrideMonth: "&eHappy pride month!"
     messageSound: ENTITY_EXPERIENCE_ORB_PICKUP
+hubCompass:
+    name: '&a&lOTB Teleporter'
+    lore:
+        - '&7Right click me to select'
+        - '&7a gamemode!'
+    slotCount: 9
+    content:
+        survival:
+            command: cmi:rt {player} world
+            name: '&6&lSurvival'
+            material: DIAMOND_HOE
+            lore:
+                - '&7Click me to &arandomly'
+                - '&ateleport&7 in the survival'
+                - '&7world!'
+        skyblock:
+            command: -p island
+            name: '&a&lSkyblock'
+            material: GRASS_BLOCK
+            lore:
+                - '&7Click me to &aopen the'
+                - '&askyblock menu&7!'
+        factions:
+            command: mvtp {player} factions
+            name: '&c&lFactions'
+            material: NETHERITE_SWORD
+            lore:
+                - '&7Click me to &ago to'
+                - '&afactions&7!'
 doubleDoorPlayers: []
 keepInvPlayers: []
 noCreeperMessagePlayers: []
