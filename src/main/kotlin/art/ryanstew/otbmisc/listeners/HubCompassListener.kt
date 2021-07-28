@@ -2,7 +2,6 @@ package art.ryanstew.otbmisc.listeners
 
 import art.ryanstew.otbmisc.OTBMisc
 import art.ryanstew.otbmisc.util.MiscUtil.Util.toChatColor
-import com.Zrips.CMI.events.CMIPlayerTeleportEvent
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
@@ -12,6 +11,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryType
+import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
@@ -26,7 +26,7 @@ class HubCompassListener(private val plugin: OTBMisc) : Listener
     }
 
     @EventHandler
-    fun onTeleport(e: CMIPlayerTeleportEvent)
+    fun onPlayerWorldChange(e: PlayerChangedWorldEvent)
     {
         val hubWorld = plugin.getMainConfig().getString("hubWorld")
         if (hubWorld == null)
@@ -35,7 +35,7 @@ class HubCompassListener(private val plugin: OTBMisc) : Listener
             return
         }
 
-        if (!e.to.world.name.equals(hubWorld, true)) return
+        if (!e.player.world.name.equals(hubWorld, true)) return
 
         val compassSection = plugin.getMainConfig().getConfigurationSection("hubCompass")
         if (compassSection == null)
@@ -58,13 +58,11 @@ class HubCompassListener(private val plugin: OTBMisc) : Listener
         val compassMeta = compass!!.itemMeta
         compassMeta.displayName(Component.text(compassName.toChatColor()))
         compassMeta.lore(compassLore)
-
         compass!!.itemMeta = compassMeta
 
-        plugin.server.scheduler.runTaskLaterAsynchronously(plugin, Runnable()
-        {
-            if (!e.player.inventory.contains(Material.COMPASS))
-                e.player.inventory.addItem(compass!!)
+        plugin.server.scheduler.scheduleSyncDelayedTask(plugin, {
+            e.player.inventory.clear()
+            e.player.inventory.addItem(compass!!)
         }, 1L)
     }
 
@@ -91,7 +89,7 @@ class HubCompassListener(private val plugin: OTBMisc) : Listener
             return
         }
 
-        var inventorySize = plugin.getMainConfig().getInt("hubCompass.slotCount", 54)
+        val inventorySize = plugin.getMainConfig().getInt("hubCompass.slotCount", 54)
         val inventory = plugin.server.createInventory(null, inventorySize, Component.text("&lOTB Teleporter".toChatColor()))
 
         val itemPaths = contentSection.getKeys(false)
