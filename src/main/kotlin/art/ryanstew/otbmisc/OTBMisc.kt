@@ -78,8 +78,7 @@ class OTBMisc : JavaPlugin()
 
         // schedule money checker
         val econ = server.servicesManager.getRegistration(Economy::class.java)!!.provider
-        server.scheduler.scheduleSyncRepeatingTask(this, Runnable
-        {
+        server.scheduler.scheduleSyncRepeatingTask(this, {
             val players = server.onlinePlayers
             val sharedWorldsSection = getMoneyConfig().getConfigurationSection("sharedWorlds")!!
 
@@ -121,6 +120,10 @@ class OTBMisc : JavaPlugin()
         manager.registerCommand(CartographyTableCommand())
         manager.registerCommand(GrindstoneCommand())
         manager.registerCommand(LoomCommand())
+        manager.registerCommand(SmeltInventoryCommand(this))
+        manager.registerCommand(SmeltHandCommand(this))
+        manager.registerCommand(UnsmeltHandCommand(this))
+        manager.registerCommand(UnsmeltInventoryCommand(this))
     }
 
     // register donor commands
@@ -131,7 +134,7 @@ class OTBMisc : JavaPlugin()
         manager.registerCommand(SetPrefixCommand(this))
         manager.registerCommand(GradientNickCommand(this))
         manager.registerCommand(GradientSetPrefixCommand(this))
-        //manager.registerCommand(LoreCommand(this))
+        manager.registerCommand(ImageMapCommand(this))
     }
 
     // register staff commands
