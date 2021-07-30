@@ -40,6 +40,7 @@ class ImageMapCommand(private val plugin: OTBMisc) : BaseCommand()
     }
 
     @Subcommand("create")
+    @CommandCompletion("<url> [<width>] [<height>]")
     fun onCreateCommand(player: Player, url: String, @Optional width: Int?, @Optional height: Int?)
     {
         if (playersWaitingOnMaps.contains(player.uniqueId))
