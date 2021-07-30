@@ -2,6 +2,7 @@ package art.ryanstew.otbmisc
 
 import art.ryanstew.otbmisc.donorcommands.*
 import art.ryanstew.otbmisc.listeners.*
+import art.ryanstew.otbmisc.placeholders.BedWarsPlaceholder
 import art.ryanstew.otbmisc.placeholders.FactionNamePlaceholder
 import art.ryanstew.otbmisc.playercommands.*
 import art.ryanstew.otbmisc.staffcommands.KeepInvCommand
@@ -30,6 +31,8 @@ class OTBMisc : JavaPlugin()
     private var moneyConfig: FileConfiguration? = null
     private var homeConfigFile: File? = null
     private var homeConfig: FileConfiguration? = null
+    private var mapConfigFile: File? = null
+    private var mapConfig: FileConfiguration? = null
     var prefix = ""
     var hubCompassMap = mutableMapOf<Material, String>()
 
@@ -55,8 +58,15 @@ class OTBMisc : JavaPlugin()
         reloadHomeConfig()
         saveHomeConfig()
 
+        // set up imagemaps.yml
+        if (mapConfigFile == null) mapConfigFile = File(dataFolder, "imagemaps.yml")
+        if (!mapConfigFile!!.exists()) saveResource("imagemaps.yml", false)
+        reloadMapConfig()
+        saveMapConfig()
+
         // register PlaceholderAPI placeholders
         FactionNamePlaceholder(this).register()
+        BedWarsPlaceholder().register()
 
         // register event listeners
         registerEvents()
@@ -76,23 +86,11 @@ class OTBMisc : JavaPlugin()
         // staff commands
         registerStaffCommands(manager)
 
+        // load map images
+        loadMapImages()
+
         // schedule money checker
-        val econ = server.servicesManager.getRegistration(Economy::class.java)!!.provider
-        server.scheduler.scheduleSyncRepeatingTask(this, {
-            val players = server.onlinePlayers
-            val sharedWorldsSection = getMoneyConfig().getConfigurationSection("sharedWorlds")!!
-
-            for (player in players)
-            {
-                if (!sharedWorldsSection.getKeys(false).contains(player.world.name)) continue
-
-                val balance = econ.getBalance(player).toBigDecimal().setScale(2, RoundingMode.HALF_UP).toPlainString()
-                getMoneyConfig().set("worldBalances.${sharedWorldsSection.get(player.world.name)}.${player.uniqueId}", balance)
-            }
-
-            saveMoneyConfig()
-
-        }, 0L, 20L * 60 * 5)
+        scheduleMoneyChecker()
     }
 
 
@@ -159,6 +157,7 @@ class OTBMisc : JavaPlugin()
         server.pluginManager.registerEvents(PlayerJoinListener(this), this)
         server.pluginManager.registerEvents(CMIRandomTeleportListener(this), this)
         server.pluginManager.registerEvents(HubCompassListener(this), this)
+        server.pluginManager.registerEvents(MapInitializedListener(this), this)
     }
 
 
@@ -226,6 +225,21 @@ class OTBMisc : JavaPlugin()
         }
     }
 
+    // save the map config
+    fun saveMapConfig()
+    {
+        if (mapConfig == null || mapConfigFile == null) return
+
+        try
+        {
+            getMapConfig().save(mapConfigFile!!)
+        }
+        catch (e: IOException)
+        {
+            logger.severe("Could not save config to $mapConfigFile")
+        }
+    }
+
     // get the main config
     fun getMainConfig(): FileConfiguration
     {
@@ -245,6 +259,12 @@ class OTBMisc : JavaPlugin()
     {
         if (homeConfig == null) reloadHomeConfig()
         return homeConfig!!
+    }
+
+    fun getMapConfig(): FileConfiguration
+    {
+        if (mapConfig == null) reloadHomeConfig()
+        return mapConfig!!
     }
 
     // reload the main config
@@ -273,6 +293,13 @@ class OTBMisc : JavaPlugin()
     {
         if (homeConfigFile == null) homeConfigFile = File(dataFolder, "homes.yml")
         homeConfig = YamlConfiguration.loadConfiguration(homeConfigFile!!)
+    }
+
+    // reload the map config
+    fun reloadMapConfig()
+    {
+        if (mapConfigFile == null) mapConfigFile = File(dataFolder, "imagemaps.yml")
+        mapConfig = YamlConfiguration.loadConfiguration(mapConfigFile!!)
     }
 
     // load contents of hubCompass into a map
@@ -312,5 +339,34 @@ class OTBMisc : JavaPlugin()
 
             hubCompassMap[material] = commandString
         }
+    }
+
+
+    /** Money Scheduler **/
+    private fun scheduleMoneyChecker()
+    {
+        val econ = server.servicesManager.getRegistration(Economy::class.java)!!.provider
+        server.scheduler.scheduleSyncRepeatingTask(this, {
+            val players = server.onlinePlayers
+            val sharedWorldsSection = getMoneyConfig().getConfigurationSection("sharedWorlds")!!
+
+            for (player in players)
+            {
+                if (!sharedWorldsSection.getKeys(false).contains(player.world.name)) continue
+
+                val balance = econ.getBalance(player).toBigDecimal().setScale(2, RoundingMode.HALF_UP).toPlainString()
+                getMoneyConfig().set("worldBalances.${sharedWorldsSection.get(player.world.name)}.${player.uniqueId}", balance)
+            }
+
+            saveMoneyConfig()
+
+        }, 0L, 20L * 60 * 5)
+    }
+
+
+    /** Load map image **/
+    fun loadMapImages()
+    {
+
     }
 }

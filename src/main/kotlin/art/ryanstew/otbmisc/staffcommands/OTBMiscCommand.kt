@@ -17,6 +17,7 @@ class OTBMiscCommand(private val plugin: OTBMisc) : BaseCommand()
         plugin.reloadMainConfig()
         plugin.reloadMoneyConfig()
         plugin.reloadHomeConfig()
+        plugin.reloadMapConfig()
         sender.sendMessage("${plugin.prefix} &aReloaded all configs successfully!".toChatColor())
     }
 

@@ -35,20 +35,19 @@ class FactionNamePlaceholder(private val plugin: OTBMisc) : PlaceholderExpansion
         return "1.0.0"
     }
 
-    override fun onRequest(player: OfflinePlayer?, identifier: String): String
+    override fun onRequest(offlinePlayer: OfflinePlayer?, identifier: String): String
     {
-        if (identifier.equals("factionname", true))
-        {
-            if (!factionsWorlds.contains(player?.player?.world?.name)
-                || plugin.getMainConfig().getStringList("noFactionsPrefixPlayers").contains(player?.uniqueId?.toString())) return ""
+        val player = offlinePlayer?.player ?: return ""
 
-            val fPlayer: FPlayer = FPlayers.getInstance().getByPlayer(player!!.player)
+        if (!identifier.equals("factionname", true)) return ""
 
-            if (!fPlayer.hasFaction()) return ""
+        if (!factionsWorlds.contains(player.world.name)
+            || plugin.getMainConfig().getStringList("noFactionsPrefixPlayers").contains(player.uniqueId.toString())) return ""
 
-            return "&8&l[&a${fPlayer.rolePrefix}${fPlayer.faction.tag}&8&l]&r "
-        }
+        val fPlayer: FPlayer = FPlayers.getInstance().getByPlayer(player.player)
 
-        return ""
+        if (!fPlayer.hasFaction()) return ""
+
+        return "&8&l[&a${fPlayer.rolePrefix}${fPlayer.faction.tag}&8&l]&r "
     }
 }

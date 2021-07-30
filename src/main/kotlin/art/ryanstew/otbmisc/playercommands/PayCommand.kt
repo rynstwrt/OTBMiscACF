@@ -4,6 +4,7 @@ import art.ryanstew.otbmisc.OTBMisc
 import art.ryanstew.otbmisc.util.MiscUtil.Util.toChatColor
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
+import net.kyori.adventure.text.Component
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
@@ -82,8 +83,9 @@ class PayCommand(private val plugin: OTBMisc) : BaseCommand()
         }
 
         val displayFloat: Double = round(amount * 100) / 100
-        player.sendMessage("${plugin.prefix} &aSuccessfully paid ${targetPlayer.displayName()}&a $$displayFloat&a.".toChatColor())
-        targetPlayer.sendMessage("${plugin.prefix} &aReceived $$displayFloat from ${player.displayName()}&a.".toChatColor())
+
+        player.sendMessage(Component.text("${plugin.prefix} &aSuccessfully paid ".toChatColor()).append(targetPlayer.displayName()).append(Component.text("&a $$displayFloat&a.".toChatColor())))
+        targetPlayer.sendMessage(Component.text("${plugin.prefix} &aReceived $$displayFloat from ".toChatColor()).append(player.displayName()).append(Component.text("&a.".toChatColor())))
     }
 
     private fun canWorldsTrade(w1: String, w2: String): Boolean

@@ -1,3 +1,4 @@
+
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -16,6 +17,7 @@ repositories {
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://jitpack.io")
     maven("https://repo.onarandombox.com/content/groups/public/")
+    maven("https://repo.screamingsandals.org/repository/maven-releases/")
 }
 
 val compileKotlin: KotlinCompile by tasks
@@ -27,7 +29,7 @@ compileKotlin.kotlinOptions {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("co.aikar:acf-paper:0.5.0-SNAPSHOT")
-    compileOnly("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
+    implementation("io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT")
 
     compileOnly("me.clip:placeholderapi:2.10.10")
     {
@@ -55,6 +57,11 @@ dependencies {
     }
 
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+    {
+        isTransitive = false
+    }
+
+    compileOnly("org.screamingsandals.bedwars:BedWars-API:0.2.19")
     {
         isTransitive = false
     }

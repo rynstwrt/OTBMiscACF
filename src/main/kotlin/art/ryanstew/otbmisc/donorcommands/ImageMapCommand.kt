@@ -2,9 +2,11 @@ package art.ryanstew.otbmisc.donorcommands
 
 import art.ryanstew.otbmisc.OTBMisc
 import art.ryanstew.otbmisc.util.MapImageRenderer
+import art.ryanstew.otbmisc.util.MiscUtil.Util.toBufferedImage
 import art.ryanstew.otbmisc.util.MiscUtil.Util.toChatColor
 import co.aikar.commands.BaseCommand
 import co.aikar.commands.annotation.*
+import co.aikar.commands.annotation.Optional
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -16,6 +18,7 @@ import org.bukkit.map.MapView
 import java.awt.Image
 import java.awt.image.BufferedImage
 import java.net.URL
+import java.util.*
 import javax.imageio.ImageIO
 import kotlin.math.abs
 import kotlin.math.ceil
@@ -24,8 +27,7 @@ import kotlin.math.ceil
 @CommandPermission("otbmisc.imagemap")
 class ImageMapCommand(private val plugin: OTBMisc) : BaseCommand()
 {
-    private val scalingMode = Image.SCALE_DEFAULT
-    private val imageType = BufferedImage.TYPE_INT_ARGB_PRE
+    private val playersWaitingOnMaps = mutableListOf<UUID>()
 
     @Default
     @CatchUnknown
@@ -40,12 +42,19 @@ class ImageMapCommand(private val plugin: OTBMisc) : BaseCommand()
     @Subcommand("create")
     fun onCreateCommand(player: Player, url: String, @Optional width: Int?, @Optional height: Int?)
     {
+        if (playersWaitingOnMaps.contains(player.uniqueId))
+        {
+            player.sendMessage("${plugin.prefix} &7Please wait for your current image to finish loading.".toChatColor())
+            return
+        }
+
         if (!url.matches("(http(s?):)([/|.\\w\\s-])*\\.(?:jpg|gif|png|jpeg)".toRegex()))
         {
             player.sendMessage("${plugin.prefix} &cThat is not a valid image url!".toChatColor())
             return
         }
 
+        playersWaitingOnMaps.add(player.uniqueId)
         player.sendMessage("${plugin.prefix} &7Attempting to load image... Please wait.".toChatColor())
 
         plugin.server.scheduler.runTaskAsynchronously(plugin, Runnable()
@@ -55,19 +64,20 @@ class ImageMapCommand(private val plugin: OTBMisc) : BaseCommand()
             {
                 image = ImageIO.read(URL(url))
 
-                if (width == null || height == null)
+                var scaledWidth = 128 * ceil(abs(image.width.toDouble() / 256)).toInt()
+                var scaledHeight = 128 * ceil(abs(image.height.toDouble() / 256)).toInt()
+
+                if (width != null && height != null)
                 {
-                    val nearestWidth = 128 * ceil(abs(image.width.toDouble() / 256)).toInt()
-                    val nearestHeight = 128 * ceil(abs(image.height.toDouble() / 256)).toInt()
-                    image = image.getScaledInstance(nearestWidth, nearestHeight, scalingMode).toBufferedImage()
+                    scaledWidth = 128 * width
+                    scaledHeight = 128 * height
                 }
-                else
-                {
-                    image = image.getScaledInstance(128 * width, 128 * height, scalingMode).toBufferedImage()
-                }
+
+                image = image.getScaledInstance(scaledWidth, scaledHeight, Image.SCALE_DEFAULT).toBufferedImage()
             }
             catch (exc: Exception)
             {
+                playersWaitingOnMaps.remove(player.uniqueId)
                 player.sendMessage("${plugin.prefix} &cThat image could not be loaded!".toChatColor())
                 return@Runnable
             }
@@ -77,10 +87,12 @@ class ImageMapCommand(private val plugin: OTBMisc) : BaseCommand()
 
             if (numMapsWidth * numMapsHeight > 36)
             {
+                playersWaitingOnMaps.remove(player.uniqueId)
                 player.sendMessage("${plugin.prefix} &cThat image is too large!".toChatColor())
                 return@Runnable
             }
 
+            val mapsToDrop = mutableListOf<ItemStack>()
             for (y in 0 until numMapsHeight)
             {
                 for (x in 0 until numMapsWidth)
@@ -88,13 +100,15 @@ class ImageMapCommand(private val plugin: OTBMisc) : BaseCommand()
                     val map = Bukkit.createMap(player.world)
                     map.scale = MapView.Scale.FARTHEST
                     map.isUnlimitedTracking = true
-
                     map.renderers.forEach { map.removeRenderer(it) }
-                    map.addRenderer(MapImageRenderer(plugin, image.getSubimage(
+
+                    map.addRenderer(
+                        MapImageRenderer(plugin, image.getSubimage(
                         x * 128,
                         y * 128,
                         128,
-                        128)))
+                        128))
+                    )
 
                     val filledMap = ItemStack(Material.FILLED_MAP, 1)
                     val mapMeta = filledMap.itemMeta as MapMeta
@@ -102,25 +116,35 @@ class ImageMapCommand(private val plugin: OTBMisc) : BaseCommand()
                     mapMeta.mapView = map
                     filledMap.itemMeta = mapMeta
 
-                    player.inventory.addItem(filledMap)
+                    if (player.inventory.firstEmpty() == -1)
+                        mapsToDrop.add(filledMap)
+                    else
+                        player.inventory.addItem(filledMap)
+
+                    plugin.getMapConfig().set("maps.${map.id}.url", url)
+                    plugin.getMapConfig().set("maps.${map.id}.x", x)
+                    plugin.getMapConfig().set("maps.${map.id}.y", y)
+
+                    if (width != null && height != null)
+                    {
+                        plugin.getMapConfig().set("maps.${map.id}.width", width)
+                        plugin.getMapConfig().set("maps.${map.id}.height", height)
+                    }
                 }
             }
 
+            plugin.saveMapConfig()
+            playersWaitingOnMaps.remove(player.uniqueId)
+
             player.sendMessage("${plugin.prefix} &7Giving you &a${numMapsWidth * numMapsHeight} &7maps for a &a$numMapsWidth&7x&a$numMapsHeight&7 image.".toChatColor())
             player.sendActionBar(Component.text("&7Giving you &a${numMapsWidth * numMapsHeight} &7maps for a &a$numMapsWidth&7x&a$numMapsHeight&7 image.".toChatColor()))
+
+            if (mapsToDrop.isNotEmpty())
+            {
+                player.sendMessage("${plugin.prefix} &cYour inventory is full and couldn't hold some of the maps!".toChatColor())
+
+                plugin.server.scheduler.scheduleSyncDelayedTask(plugin) { mapsToDrop.forEach { player.world.dropItemNaturally(player.location, it) } }
+            }
         })
-    }
-
-
-    private fun Image.toBufferedImage(): BufferedImage {
-        if (this is BufferedImage) return this
-
-        val bufferedImage = BufferedImage(this.getWidth(null), this.getHeight(null), imageType)
-
-        val graphics2D = bufferedImage.createGraphics()
-        graphics2D.drawImage(this, 0, 0, null)
-        graphics2D.dispose()
-
-        return bufferedImage
     }
 }
